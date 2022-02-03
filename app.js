@@ -11,22 +11,21 @@ const flash = require('connect-flash')
 app.use(flash())
 
 const expressSession = require('express-session')
-app.use(expressSession({
-    resave: false,
-    saveUninitialized: false,
-    secret: "sessionSecret123456",
-}))
-
 const redis = require('redis')
 const RedisStore = require('connect-redis')(expressSession)
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({
+    legacyMode: true
+})
+redisClient.connect();
 
 app.use(
     expressSession({
-        store: new RedisStore({client:redisClient}),
+        resave: false,
         saveUninitialized: false,
         secret: credentials.secret,
-        resave: false,
+        store: new RedisStore({
+            client:redisClient
+        }),
     })
 )
 

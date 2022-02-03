@@ -9,27 +9,25 @@ module.exports = {
     },
     findUser: async(email="")=>{
         const { rows } = await pool.query('SELECT name,email FROM USERS WHERE email IN ($1)',[email])
-        return rows
+        return rows[0]
     },
-    addUser: async(email="",password="")=>{
+    addUser: async(name, email, password)=>{
+        if(!name|!email|!password) return {failed:"Data deficient."}
         const sql = `
         INSERT INTO  Users(
             name,
             email,
             password,
-            comment,
-            age,
             available
-        ) VALUES($1, $2, $3, $4, $5, $6)
+        ) VALUES($1, $2, $3, $4)
         `
         await pool.query(sql,[
-            email,
+            name,
             email,
             password,
-            'comment',
-            0,
             true
         ])
-        return {}
+        
+        return {success:{name:name,email:email}}
     },
 }

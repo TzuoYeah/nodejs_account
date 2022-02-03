@@ -1,18 +1,17 @@
 const db = require('../db')
 
-exports.findUser = async(req,res)=>{
-    const user = await db.findUser(req.body.email)
-    res.json(user)
+exports.login = async(req,res)=>{
+    res.redirect(307,'/auth/login')
+}
+exports.account = async(req,res)=>{
+    if(!req.isAuthenticated()) return res.json( {failed:"No authorized."} )
+    const user = await req.user
+    return res.json(user)
 }
 exports.register = async(req,res)=>{
+    let mes ={}
     const user = await db.findUser(req.body.email)
-    if(!user.length)
-        await db.addUser(req.body.email,req.body.password)
-    res.json({})
-}
-exports.failureRedirect = async(req,res)=>{
-    res.send({ message : req.flash('error')} )
-}
-exports.successRedirect = async(req,res)=>{
-    res.send({ user : req.session.passport.user })
+    if(!user)
+        mes = await db.addUser(req.body.name, req.body.email, req.body.password)
+    return res.json(mes)
 }
